@@ -6,17 +6,14 @@
 				<div class="card">
 					<div class="card-header" id="head"><a href='' title='Add'><img src='https://image.flaticon.com/icons/svg/54/54878.svg' width='55'/></a><br><br></div>
 					<div class="card-body">
-						<a href='' title='Add'><img src='https://previews.123rf.com/images/rrraven/rrraven1709/rrraven170900039/86130765-spoon-fork-and-knife-vector-.jpg' width='65'/></a><br><br>
-						<a href='' title='History'><img src='https://cdn.icon-icons.com/icons2/1518/PNG/512/taskboardmono_105883.png' width='65'/></a><br><br>
-						<center>
-							<b-button v-b-modal.modal-1>ADD</b-button><br><br>
-							<b-button  v-b-modal.modal-edit>EDIT</b-button><br><br>
-							<b-button  v-b-modal.modal-delete>DEL</b-button>
-							</center>
-							<b-modal id="modal-1" title="Add">
+						<b-img src="https://previews.123rf.com/images/rrraven/rrraven1709/rrraven170900039/86130765-spoon-fork-and-knife-vector-.jpg" width="65" v-b-modal.modal-1></b-img><br><br>
+						<router-link to="/history">
+            <b-img src="https://cdn.icon-icons.com/icons2/1522/PNG/512/taskboardlinear_106203.png" 	width="65"></b-img>
+        </router-link>
+							<b-modal id="modal-1" title="Add" hide-footer>
 								<form>
 								<b-form-group 
-								label="enter nama"
+								label="Nama"
 								>
 								<b-form-input
 								id="name-input"
@@ -24,7 +21,7 @@
 								</b-form-input>
 								</b-form-group>
 								<b-form-group 
-								label="enter harga"
+								label="Harga"
 								>
 								<b-form-input
 								id="name-input"
@@ -32,7 +29,7 @@
 								</b-form-input>
 								</b-form-group>
 								<b-form-group 
-								label="enter stok"
+								label="Stok"
 								>
 								<b-form-input
 								id="name-input"
@@ -40,7 +37,7 @@
 								</b-form-input>
 								</b-form-group>
 								<b-form-group 
-								label="enter images"
+								label="Url Images"
 								>
 								<b-form-input
 								id="name-input"
@@ -50,7 +47,7 @@
 								<button class="btn btn-primary" @click="addProduct()">Save</button>
 								</form>
               </b-modal>
-			<b-modal id="modal-edit" title="Edit Produk">
+			<b-modal id="modal-edit" title="Edit Produk" hide-footer>
 								<form>
 								<b-form-group 
 								label="enter id"
@@ -95,7 +92,7 @@
 								<button class="btn btn-primary" @click="edit()">Save</button>
 								</form>
               </b-modal>
-			<b-modal id="modal-delete" title="Delete Produk">
+			<b-modal id="modal-delete" title="Delete Produk" hide-footer>
 								<form>
 								<b-form-group 
 								label="ID"
@@ -120,6 +117,9 @@
             <b-nav-form>
               <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
               <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+				<b-nav-item-dropdown text="" right>
+                <b-dropdown-item to="/nama">Nama</b-dropdown-item>
+              </b-nav-item-dropdown>
             </b-nav-form>
 						<h5 style="font-family: cursive; color: black; text-align: center;">Food Item</h5>
 					</div>
@@ -129,9 +129,11 @@
 						<b-img :src=item.images :alt="item" width="200" @click="addCart(item)"></b-img>
 						<h2><center>{{ item.nama }}</center></h2>	
 						<p><center>Harga :Rp {{ item.harga }}</center></p> 
+				<b-button variant="success" v-b-modal.modal-edit>Edit</b-button>
+                <b-button variant="primary" v-b-modal.modal-delete>Delete</b-button>
+				<br>   
 				</div>
 				</div>
-				
 			</div>
 		</div>
 
@@ -224,7 +226,19 @@ export default {
 		} catch (error) {
 			console.log(error)
 		}
-	},	
+	},
+	search(){
+      try {
+        const response = axios({
+          method: "GET",
+          url: 'http://localhost:3000/product/search?nama={{nama}}' ,
+          data: {nama : this.form.nama}
+        })
+        this.data = response.data  
+      } catch (err) {
+        console.log(err)
+		} 
+	}
 	}
 	
 }
