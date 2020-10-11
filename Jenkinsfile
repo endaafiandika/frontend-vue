@@ -73,7 +73,7 @@ pipeline {
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker pull endaafiandika/frontend-vue; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue',
+                                        execCommand: 'docker pull endaafiandika/frontend-vue:master; docker kill frontend-vue:master;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue:master',
                                         execTimeout: 120000,
                                     )
                                 ]
@@ -99,7 +99,7 @@ pipeline {
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker pull endaafiandika/frontend-vue; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue',
+                                        execCommand: 'docker pull endaafiandika/frontend-vue:master; docker kill frontend-vue:master;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue:master',
                                         execTimeout: 120000,
                                     )
                                 ]
