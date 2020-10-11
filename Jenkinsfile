@@ -73,7 +73,7 @@ pipeline {
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker-compose up -d',
+                                        execCommand: 'docker pull endaafiandika/frontend-vue; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue',
                                         execTimeout: 120000,
                                     )
                                 ]
@@ -99,7 +99,7 @@ pipeline {
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker-compose up -d',
+                                        execCommand: 'docker pull endaafiandika/frontend-vue; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue',
                                         execTimeout: 120000,
                                     )
                                 ]
