@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     CommitHash = sh (script : "git log -n 1 --pretty=format:'%H'", returnStdout: true)
-                    builderDocker = docker.build("endaafiandika/backnew:${CommitHash}")
+                    builderDocker = docker.build("endaafiandika/frontend-vue:${CommitHash}")
                 }
             }
         }
