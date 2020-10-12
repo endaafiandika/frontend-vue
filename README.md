@@ -3,8 +3,6 @@
 ## Project setup
 ```
 yarn install
-yarn global add @vue/cli
-yarn add vue bootstrap-vue bootstrap
 ```
 
 ### Compiles and hot-reloads for development
