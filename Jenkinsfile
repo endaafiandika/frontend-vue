@@ -7,7 +7,6 @@ pipeline {
 
     parameters {
         booleanParam(name: 'RUNTEST', defaultValue: true, description: 'Toggle this value fro testing')
-        choice(name: 'CICD', choices: ['Deploy', 'Production'], description: 'Pick something')
     }
 
     stages {
@@ -38,7 +37,7 @@ pipeline {
             steps {
                 script {
                     builderDocker.inside {
-                        sh 'echo passed'
+                        sh 'echo passed ${BRANCH_NAME}'
                     }
                 }
             }
@@ -61,7 +60,7 @@ pipeline {
         stage('Deploy') {
             when {
                 expression {
-                    params.CICD == 'Deploy'
+                    BRANCH_NAME == "deployment"
                 }
             }
             steps {
@@ -87,7 +86,7 @@ pipeline {
         stage('Production') {
             when {
                 expression {
-                    params.CICD == 'Production'
+                    BRANCH_NAME == "production"
                 }
             }
             steps {
