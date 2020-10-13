@@ -7,7 +7,6 @@ pipeline {
 
     parameters {
         booleanParam(name: 'RUNTEST', defaultValue: true, description: 'Toggle this value fro testing')
-        choice(name: 'CICD', choices: ['Deploy', 'Production'], description: 'Pick something')
     }
 
     stages {
@@ -38,7 +37,7 @@ pipeline {
             steps {
                 script {
                     builderDocker.inside {
-                        sh 'echo passed'
+                        sh 'echo passed ${BRANCH_NAME}'
                     }
                 }
             }
@@ -61,7 +60,7 @@ pipeline {
         stage('Deploy') {
             when {
                 expression {
-                    params.CICD == 'Deploy'
+                    BRANCH_NAME == "deployment"
                 }
             }
             steps {
@@ -73,7 +72,7 @@ pipeline {
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker-compose up -d',
+                                        execCommand: 'docker pull endaafiandika/frontend-vue:deployment; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue:deployment',
                                         execTimeout: 120000,
                                     )
                                 ]
@@ -99,7 +98,7 @@ pipeline {
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker-compose up -d',
+                                        execCommand: 'docker pull endaafiandika/frontend-vue:production; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue:production',
                                         execTimeout: 120000,
                                     )
                                 ]
