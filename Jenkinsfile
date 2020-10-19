@@ -19,61 +19,22 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    CommitHash = sh (script : "git log -n 1 --pretty=format:'%H'", returnStdout: true)
-                    builderDocker = docker.build("endaafiandika/frontend-vue:${CommitHash}")
-                }
-            }
-        }
-
-        stage('Run Testing') {
-            when {
-                expression {
-                    params.RUNTEST
-                }
-            }
-            steps {
-                script {
-                    builderDocker.inside {
-                        sh 'echo passed ${BRANCH_NAME}'
-                    }
-                }
-            }
-        }
-
-        stage('Push Image') {
-            when {
-                expression {
-                    params.RUNTEST
-                }
-            }
-
-            steps {
-                script {
-                    builderDocker.push("${env.GIT_BRANCH}")
-                }
-            }
-        }
-
-        stage('Deploy') {
+        stage('Build image') {
             when {
                 expression {
                     BRANCH_NAME == "deployment"
                 }
             }
-            steps {
-                script {
+            steps{
+               script {
                     sshPublisher(
                         publishers: [
                             sshPublisherDesc(
-                                configName: 'deployment',
+                                configName: 'ansible',
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker pull endaafiandika/frontend-vue:deployment; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue:deployment',
-                                        execTimeout: 120000,
+                                        execCommand: 'cd ansible; ansible-playbook -i hosts setup.yml',
                                     )
                                 ]
                             )
@@ -83,23 +44,22 @@ pipeline {
             }
         }
 
-        stage('Production') {
+        stage('Build Image') {
             when {
                 expression {
-                    params.CICD == 'Production'
+                    BRANCH_NAME == "production"
                 }
             }
-            steps {
-                script {
+            steps{
+               script {
                     sshPublisher(
                         publishers: [
                             sshPublisherDesc(
-                                configName: 'production',
+                                configName: 'ansible',
                                 verbose: false,
                                 transfers: [
                                     sshTransfer(
-                                        execCommand: 'docker pull endaafiandika/frontend-vue:production; docker kill frontend-vue;docker run -d --rm -p 8080:80 --name frontend endaafiandika/frontend-vue:production',
-                                        execTimeout: 120000,
+                                        execCommand: 'cd ansible; ansible-playbook -i hosts frontend.yml',
                                     )
                                 ]
                             )
@@ -107,7 +67,108 @@ pipeline {
                     )
                 }
             }
-        }        
+        }
+
+         stage('deploy to development') {
+            when {
+                expression {
+                    BRANCH_NAME == "production" || BRANCH_NAME == "deployment"
+                }
+            }
+            steps{
+               script {
+                    sshPublisher(
+                        publishers: [
+                            sshPublisherDesc(
+                                configName: 'ansible',
+                                verbose: false,
+                                transfers: [
+                                    sshTransfer(
+                                        execCommand: 'cd ansible; ansible-playbook -i hosts setup.yml',
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                }
+            }
+        }
+
+        stage('deploy to production') {
+            when {
+                expression {
+                    BRANCH_NAME == "production"
+                }
+            }
+            steps{
+               script {
+                    sshPublisher(
+                        publishers: [
+                            sshPublisherDesc(
+                                configName: 'ansible',
+                                verbose: false,
+                                transfers: [
+                                    sshTransfer(
+                                        execCommand: 'cd ansible; ansible-playbook -i hosts setup.yml',
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                }
+            }
+        }
+
+        stage('Run Testing production') {
+            when {
+                expression {
+                    BRANCH_NAME == "production"  
+                }
+            }
+            steps{
+               script {
+                    sshPublisher(
+                        publishers: [
+                            sshPublisherDesc(
+                                configName: 'ansible',
+                                verbose: false,
+                                transfers: [
+                                    sshTransfer(
+                                        execCommand: 'ansible prodserver -a "curl localhost:8080"',
+                                        execTimeout: 60000,
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                }
+            }
+        } 
+
+        stage('Run Testing Development') {
+            when {
+                expression {
+                    BRANCH_NAME == "production" || BRANCH_NAME == "deployment"
+                }
+            }
+            steps{
+               script {
+                    sshPublisher(
+                        publishers: [
+                            sshPublisherDesc(
+                                configName: 'ansible',
+                                verbose: false,
+                                transfers: [
+                                    sshTransfer(
+                                        execCommand: 'ansible devserver -a "curl localhost:8080"',
+                                        execTimeout: 60000,
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                }
+            }
+        }
     }
 }
-
